@@ -30,14 +30,12 @@ type goblinArgs struct {
 func parseArgs(raw map[string]any) (goblinArgs, error) {
 	a := goblinArgs{Name: "friend", EarliestHour: 8, LatestHour: 20}
 
-	if v, ok := raw["name"].(string); ok && v != "" {
-		a.Name = v
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return goblinArgs{}, fmt.Errorf("marshal args: %w", err)
 	}
-	if v, ok := raw["earliest_hour"].(float64); ok {
-		a.EarliestHour = int(v)
-	}
-	if v, ok := raw["latest_hour"].(float64); ok {
-		a.LatestHour = int(v)
+	if err := json.Unmarshal(data, &a); err != nil {
+		return goblinArgs{}, fmt.Errorf("unmarshal args: %w", err)
 	}
 
 	if a.LatestHour <= a.EarliestHour {
@@ -133,8 +131,8 @@ func run(input sdk.Input, now time.Time, randIntn func(int) int) (sdk.Output, er
 	// Time to send.
 	return sdk.Output{
 		Data: map[string]any{
-			"name":         args.Name,
-			"time_of_day":  timeOfDay(now.UTC().Hour()),
+			"name":        args.Name,
+			"time_of_day": timeOfDay(now.UTC().Hour()),
 		},
 		State: saveState(goblinState{LastSentDate: today}),
 		Skip:  false,

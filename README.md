@@ -94,6 +94,37 @@ misc/wasm-run.sh goblin-starter testdata/input.json
 
 ---
 
+## Key patterns
+
+### Parsing arguments and state
+
+`input.Arguments` and `input.State` arrive as `map[string]any` — Go's generic
+representation of a decoded JSON object. To work with them in a type-safe way,
+define structs with `json:` tags and use a JSON round-trip:
+
+```go
+type goblinArgs struct {
+    Name string `json:"name"`
+}
+
+func parseArgs(raw map[string]any) (goblinArgs, error) {
+    a := goblinArgs{Name: "friend"} // set defaults first
+    data, _ := json.Marshal(raw)
+    if err := json.Unmarshal(data, &a); err != nil {
+        return goblinArgs{}, fmt.Errorf("unmarshal args: %w", err)
+    }
+    return a, nil
+}
+```
+
+Marshal puts the map back into JSON bytes; unmarshal converts those bytes into
+the typed struct using the struct tags. Nested types — slices, nested structs —
+are handled for free. See `goblin.go` for the full implementation, and the
+[Developer Guide](https://github.com/ai-goblins/goblin-sdk/blob/main/DEVELOPER_GUIDE.md#64-parsing-arguments-and-state)
+for a detailed explanation.
+
+---
+
 ## Forking guide
 
 1. Fork this repo and rename it (`my-goblin`, `weather-check`, etc.).
