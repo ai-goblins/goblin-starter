@@ -1,0 +1,11 @@
+{
+  "goblin_id": "01JXXXXXXXXXXXXXXXX",
+  "run_id":    "01JXXXXXXXXXXXXXXXX",
+  "run_at":    "2026-02-22T10:00:00Z",
+  "arguments": {
+    "name":          "Alice",
+    "earliest_hour": 8,
+    "latest_hour":   20
+  },
+  "state": {}
+}
