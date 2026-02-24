@@ -108,7 +108,7 @@ func run(input sdk.Input, now time.Time, randIntn func(int) int) (sdk.Output, er
 
 	// Already sent today — nothing to do.
 	if state.LastSentDate == today {
-		return sdk.Output{Skip: true, State: saveState(state)}, nil
+		return sdk.Output{State: saveState(state)}, nil
 	}
 
 	// No send time chosen for today yet — pick one and wait.
@@ -116,7 +116,7 @@ func run(input sdk.Input, now time.Time, randIntn func(int) int) (sdk.Output, er
 		hour := args.EarliestHour + randIntn(args.LatestHour-args.EarliestHour)
 		minute := randIntn(60)
 		state.ScheduledFor = fmt.Sprintf("%sT%02d:%02d", today, hour, minute)
-		return sdk.Output{Skip: true, State: saveState(state)}, nil
+		return sdk.Output{State: saveState(state)}, nil
 	}
 
 	// Send time chosen but not yet reached — keep waiting.
@@ -125,7 +125,7 @@ func run(input sdk.Input, now time.Time, randIntn func(int) int) (sdk.Output, er
 		return sdk.Output{}, fmt.Errorf("parse scheduled_for %q: %w", state.ScheduledFor, err)
 	}
 	if now.UTC().Before(scheduledAt) {
-		return sdk.Output{Skip: true, State: saveState(state)}, nil
+		return sdk.Output{State: saveState(state)}, nil
 	}
 
 	// Time to send.
@@ -134,8 +134,8 @@ func run(input sdk.Input, now time.Time, randIntn func(int) int) (sdk.Output, er
 			"name":        args.Name,
 			"time_of_day": timeOfDay(now.UTC().Hour()),
 		},
-		State: saveState(goblinState{LastSentDate: today}),
-		Skip:  false,
+		State:         saveState(goblinState{LastSentDate: today}),
+		ContinueToLLM: true,
 	}, nil
 }
 

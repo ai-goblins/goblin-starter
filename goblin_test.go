@@ -132,8 +132,8 @@ func TestRun_AlreadySentToday_Skips(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !out.Skip {
-		t.Error("expected Skip=true when already sent today")
+	if out.ContinueToLLM {
+		t.Error("expected ContinueToLLM=false when already sent today")
 	}
 }
 
@@ -146,8 +146,8 @@ func TestRun_FirstRun_PicksScheduleAndSkips(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !out.Skip {
-		t.Error("expected Skip=true on first run (no schedule yet)")
+	if out.ContinueToLLM {
+		t.Error("expected ContinueToLLM=false on first run (no schedule yet)")
 	}
 	if out.State["scheduled_for"] != "2026-02-22T10:02" {
 		t.Errorf("scheduled_for = %v, want 2026-02-22T10:02", out.State["scheduled_for"])
@@ -165,8 +165,8 @@ func TestRun_ScheduledTimeNotYetReached_Skips(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !out.Skip {
-		t.Error("expected Skip=true when scheduled time not yet reached")
+	if out.ContinueToLLM {
+		t.Error("expected ContinueToLLM=false when scheduled time not yet reached")
 	}
 }
 
@@ -181,8 +181,8 @@ func TestRun_ScheduledTimeReached_Sends(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if out.Skip {
-		t.Error("expected Skip=false when scheduled time reached")
+	if !out.ContinueToLLM {
+		t.Error("expected ContinueToLLM=true when scheduled time reached")
 	}
 	if out.Data["name"] != "Alice" {
 		t.Errorf("data.name = %v, want Alice", out.Data["name"])
@@ -211,8 +211,8 @@ func TestRun_AfterSending_NewDayPicksNewSchedule(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !out.Skip {
-		t.Error("expected Skip=true — new day, schedule just picked")
+	if out.ContinueToLLM {
+		t.Error("expected ContinueToLLM=false — new day, schedule just picked")
 	}
 	sched, _ := out.State["scheduled_for"].(string)
 	if len(sched) < 10 || sched[:10] != "2026-02-23" {
@@ -232,8 +232,8 @@ func TestRun_ScheduleStaleFromYesterday_RepicksForToday(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !out.Skip {
-		t.Error("expected Skip=true — must repick schedule for new day")
+	if out.ContinueToLLM {
+		t.Error("expected ContinueToLLM=false — must repick schedule for new day")
 	}
 	sched, _ := out.State["scheduled_for"].(string)
 	if len(sched) < 10 || sched[:10] != "2026-02-23" {
