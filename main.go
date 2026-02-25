@@ -2,7 +2,6 @@ package main
 
 import (
 	"math/rand"
-	"time"
 
 	sdk "github.com/ai-goblins/goblin-sdk"
 )
@@ -14,7 +13,7 @@ func main() {
 		return
 	}
 
-	output, err := run(input, time.Now().UTC(), rand.Intn)
+	output, err := run(input, input.RunAt, rand.Intn)
 	if err != nil {
 		sdk.WriteError(err)
 		return
